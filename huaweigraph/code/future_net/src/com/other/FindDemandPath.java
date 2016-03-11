@@ -1,11 +1,15 @@
 package com.other;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
 import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleDirectedWeightedGraph;
+
+import com.filetool.util.LogUtil;
 
 
 
@@ -26,13 +30,7 @@ public class FindDemandPath {
 	
 	
 	public void run(){
-		this.replaceVirtualEdge();
 		
-		this.findHamiltonianPath();
-		
-		this.replaceVirtualEdge();
-		
-		this.combinePath(this.subPath);
 	}
 	
 	/**
@@ -76,6 +74,7 @@ public class FindDemandPath {
 							List<List<DefaultWeightedEdge>> rp = ve.getrPath();
 							rp.add(path);
 							ve.setrPath(rp);
+							this.virSet.add(ve);
 						}else{
 							break;
 						}
@@ -84,6 +83,13 @@ public class FindDemandPath {
 				}
 			}
 		}
+		if(this.virSet == null){
+//			System.out.println("There is no vir");
+			LogUtil.printLog("There is no vir.");
+		}else{
+			System.out.println("The number of virtual edge is " + this.virSet.size());
+		}
+		
 	}
 	
 
@@ -161,6 +167,15 @@ public class FindDemandPath {
 		
 	}
 	
+	public String formatString() {
+		List<Integer> vSeq = this.path;
+		String result = "";
+		result += vSeq.get(0).toString();
+		for(int i=1;i< vSeq.size();i++){  
+			result += ("\\|" + vSeq.get(i));  
+		} 
+		return result;
+	}
 	
 	public static void main(String[] arg) throws IOException{
 		String fileG = "test-case/case0/topo.csv";
