@@ -21,9 +21,12 @@ public class Main
             return;
         }
 
-        String graphFilePath = args[0];
-        String conditionFilePath = args[1];
-        String resultFilePath = args[2];
+        //String graphFilePath = args[0];
+        String graphFilePath = 
+        //String conditionFilePath = args[1];
+        String conditionFilePath = 
+        //String resultFilePath = args[2];
+        String resultFilePath = 
 
         LogUtil.printLog("Begin");
 
