@@ -7,6 +7,9 @@
  */
 package com.routesearch.route;
 
+import com.other.FileOperation;
+import com.other.FindDemandPath;
+
 public final class Route
 {
     /**
@@ -18,7 +21,17 @@ public final class Route
      */
     public static String searchRoute(String graphContent, String condition)
     {
-        return "hello world!";
+//        return "hello world!";
+        
+        FindDemandPath fdp = new FindDemandPath();
+		
+		fdp.graph = FileOperation.getGraph(graphContent);
+		fdp.demand = FileOperation.getCondition(condition);
+		
+		fdp.run();
+		
+		return fdp.path.toString();
+        
     }
 
 }

@@ -15,23 +15,27 @@ public class Main
 {
     public static void main(String[] args)
     {
-        if (args.length != 3)
-        {
-            System.err.println("please input args: graphFilePath, conditionFilePath, resultFilePath");
-            return;
-        }
+//        if (args.length != 3)
+//        {
+//            System.err.println("please input args: graphFilePath, conditionFilePath, resultFilePath");
+//            return;
+//        }
 
         //String graphFilePath = args[0];
-        String graphFilePath = 
+        String graphFilePath = "topo.csv";
         //String conditionFilePath = args[1];
-        String conditionFilePath = 
+        String conditionFilePath = "demand.csv";
         //String resultFilePath = args[2];
-        String resultFilePath = 
+        String resultFilePath = "result.csv";
 
         LogUtil.printLog("Begin");
 
         // 读取输入文件
+        
+        System.out.println("读入的图为：");
         String graphContent = FileUtil.read(graphFilePath, null);
+        
+        System.out.println("读入的条件为：");
         String conditionContent = FileUtil.read(conditionFilePath, null);
 
         // 功能实现入口
