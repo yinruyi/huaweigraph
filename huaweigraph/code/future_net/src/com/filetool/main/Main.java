@@ -1,5 +1,7 @@
 package com.filetool.main;
 
+import org.jgrapht.experimental.dag.DirectedAcyclicGraph.CycleFoundException;
+
 import com.filetool.util.FileUtil;
 import com.filetool.util.LogUtil;
 import com.routesearch.route.Route;
@@ -13,7 +15,7 @@ import com.routesearch.route.Route;
  */
 public class Main
 {
-    public static void main(String[] args)
+    public static void main(String[] args) throws CycleFoundException
     {
 //        if (args.length != 3)
 //        {
@@ -22,11 +24,14 @@ public class Main
 //        }
 
         //String graphFilePath = args[0];
-        String graphFilePath = "F:\\contest\\huaweigraph\\test-case\\case1\\topo.csv";
+//    	String path = "F:/test-case/newcase/test2/";
+    	String path = "F:/test-case/newcase/test100 700 5/";
+//    	String path = "F:\\contest\\huaweigraph\\test-case\\case1\\";
+        String graphFilePath = path + "topo.csv";
         //String conditionFilePath = args[1];
-        String conditionFilePath = "F:\\contest\\huaweigraph\\test-case\\case1\\demand.csv";
+        String conditionFilePath = path + "demand.csv";
         //String resultFilePath = args[2];
-        String resultFilePath = "F:\\contest\\huaweigraph\\test-case\\case1\\result.csv";
+        String resultFilePath = path + "myresult.csv";
 
         LogUtil.printLog("Begin");
 

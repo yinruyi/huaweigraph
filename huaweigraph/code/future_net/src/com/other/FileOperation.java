@@ -85,7 +85,7 @@ public class FileOperation extends DefaultWeightedEdge{
 			
 			
 		}
-		System.out.println(graph);
+//		System.out.println(graph);
 		return graph;
 	}
 	/**
@@ -120,11 +120,11 @@ public class FileOperation extends DefaultWeightedEdge{
 		input.add(vSet);
 		input.add(vD);
 		
-		System.out.println("The source and target vertex is:");
-		System.out.println("\t" + vSet);
-		
-		System.out.println("The subset v is:");
-		System.out.println("\t" + vD);
+//		System.out.println("The source and target vertex is:");
+//		System.out.println("\t" + vSet);
+//		
+//		System.out.println("The subset v is:");
+//		System.out.println("\t" + vD);
 		
 		return input;
 	}
