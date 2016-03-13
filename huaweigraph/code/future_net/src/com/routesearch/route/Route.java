@@ -31,10 +31,10 @@ public final class Route
         FindDemandPath fdp = new FindDemandPath();
 		
         fdp.graph = FileOperation.getGraph(graphContent);
-		
+		System.out.println(fdp.graph.edgeSet().size());
 		fdp.demand = FileOperation.getCondition(condition);
 		
-//		System.out.println(fdp.graph);
+
 //		System.out.println(fdp.demand);
 		
 		

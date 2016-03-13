@@ -26,7 +26,7 @@ public class Main
         //String graphFilePath = args[0];
 //    	String path = "F:/test-case/newcase/test2/";
     	String path = "F:/test-case/newcase/test100 700 5/";
-//    	String path = "F:\\contest\\huaweigraph\\test-case\\case1\\";
+//    	String path = "F:\\contest\\huaweigraph\\test-case\\case0\\";
         String graphFilePath = path + "topo.csv";
         //String conditionFilePath = args[1];
         String conditionFilePath = path + "demand.csv";

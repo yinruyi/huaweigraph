@@ -2,13 +2,16 @@ package com.other;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.jgrapht.alg.DijkstraShortestPath;
+import org.jgrapht.alg.cycle.TarjanSimpleCycles;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.DirectedWeightedSubgraph;
 import org.jgrapht.graph.SimpleDirectedWeightedGraph;
@@ -114,6 +117,9 @@ public class FindDemandPath {
 	 * @param graph
 	 */
 	public void findHamiltonianPath(){
+		
+		
+		
 		SimpleDirectedWeightedGraph<Integer, DefaultWeightedEdge> graph = this.graph;
 		
 		//construct a subgraph of V' in graph
@@ -151,9 +157,26 @@ public class FindDemandPath {
 		 */
 		
 
+		TarjanSimpleCycles finder = new TarjanSimpleCycles(subgraph);
+		if(finder.findSimpleCycles().size() > 0){
+			
+			List<List<Integer>> cycles = finder.findSimpleCycles();
+			
+			//有环的时候怎么寻找hamilton path
+			for(int i = 0; i < cycles.size(); i++){
+				List<Integer> cycle = cycles.get(i);
+				
+				if(cycle.size() == subgraph.vertexSet().size()){
+					
+					//TODO 存在一个环包含了图的所有结点
+				}else{
+					//TODO 不存在一个环包含了图的所有结点，该怎么得到这个路径，
+				}
+			}
+			
+		}
 		
-		
-		try{
+		else{
 			
 			System.out.println("Use topological sort to find hamiltonian path in V'");
 			TopologicalOrderIterator<Integer, DefaultWeightedEdge> tpSortIter = new TopologicalOrderIterator<Integer, DefaultWeightedEdge>(subgraph);
@@ -184,10 +207,11 @@ public class FindDemandPath {
 				subPath = null;
 				pathLength = 0;
 			}
-		}catch(NoSuchElementException e){
-			System.out.println("There's a cycle in the directed weighted graph");
-			e.printStackTrace();
 		}
+//		catch(NoSuchElementException e){
+//			System.out.println("There's a cycle in the directed weighted graph");
+//			e.printStackTrace();
+//		}
 		
 	}
 	
@@ -207,25 +231,54 @@ public class FindDemandPath {
 		
 		
 //		System.out.println(subPath.size());
+		Set<DefaultWeightedEdge> virEdge = new HashSet<DefaultWeightedEdge>();
+		
+		
 		
 		for(int i = 0; i < this.virSet.size(); i++){
 			VirtualEdge tempVE = this.virSet.get(i);
-			DefaultWeightedEdge tempDE = new DefaultWeightedEdge();
-			tempDE.setSource(tempVE.getSource());
-			tempDE.setTarget(tempVE.getTarget());
-			tempDE.setWeight(tempVE.getWeight());
+			this.graph.removeEdge((Integer)tempVE.getSource(), (Integer)tempVE.getTarget());
 			
-			if(subPath.contains(tempDE)){
-				int index = subPath.indexOf(tempDE);
+		}
+		
+		
+		
+		
+		Map<Integer, List<DefaultWeightedEdge>> vToR = new HashMap<Integer, List<DefaultWeightedEdge>>();
+		for(int i = 0; i < subPath.size(); i++){
+			if(subPath.get(i).getId() == -1){				
+				DefaultWeightedEdge tempDE = subPath.get(i);
 				
-				//将虚拟边的实际路径插入到subPath中去
-				List<DefaultWeightedEdge> rPath = tempVE.getrPath().get(0);
-				subPath.set(index, rPath.get(0));//首先将原来那条虚拟边去掉，并替换成新的
-				for(int j = 1; j < rPath.size(); j++){
-					index = index + 1;
-					subPath.add(index, rPath.get(j));
+				for(int j = 0; j < this.virSet.size(); j++){
+					VirtualEdge tempVE = this.virSet.get(j);
+					if(tempDE.getSource() == tempVE.getSource() && tempDE.getTarget() == tempVE.getTarget()){
+//						virEdge.add(tempDE);
+						List<DefaultWeightedEdge> rPath = tempVE.getrPath().get(0);
+						vToR.put(i, rPath);
+//						int index = 
+//						subPath.set(index, rPath.get(0));//首先将原来那条虚拟边去掉，并替换成新的
+//						for(int j = 1; j < rPath.size(); j++){
+//							index = index + 1;
+//							subPath.add(index, rPath.get(j));
+//						}
+						
+					}
 				}
+				
 			}
+		}
+//		this.graph.removeAllEdges(virEdge);
+		System.out.println(this.graph.vertexSet().size());
+		System.out.println(this.graph.edgeSet().size());//检查图的边有没有缺失
+		
+		Iterator<Map.Entry<Integer, List<DefaultWeightedEdge>>> iter = vToR.entrySet().iterator();
+		int increment = 0;
+		while(iter.hasNext()){
+			Map.Entry<Integer, List<DefaultWeightedEdge>> ele = iter.next();
+			int index = ele.getKey();
+			subPath.remove(increment + index);
+			subPath.addAll(increment + index, ele.getValue());
+			increment += ele.getValue().size() - 1;
 		}
 		
 //		this.subPath = subPath;
