@@ -67,7 +67,7 @@ public class FileOperation extends DefaultWeightedEdge{
 			String recond = cont[i].trim();
 			String[] str = recond.split(",");
 			
-			
+			Integer id = Integer.parseInt(str[0]);
 			Integer v1 = Integer.parseInt(str[1]);
 			Integer v2 = Integer.parseInt(str[2]);
 			if(!graph.containsVertex(v1)){
@@ -78,6 +78,7 @@ public class FileOperation extends DefaultWeightedEdge{
 			}
 			double weight = Integer.parseInt(str[3]);
 			DefaultWeightedEdge we = new DefaultWeightedEdge();
+			we.setId(id);
 			graph.setEdgeWeight(we, weight);
 			graph.addEdge(v1, v2, we);
 			

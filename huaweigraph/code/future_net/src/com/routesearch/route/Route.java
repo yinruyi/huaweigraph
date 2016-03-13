@@ -12,6 +12,9 @@ import com.other.FindDemandPath;
 
 public final class Route
 {
+	
+	
+	
     /**
      * 你需要完成功能的入口
      * 
@@ -37,11 +40,11 @@ public final class Route
 		
 		fdp.replaceVirtualEdge();
 		
-		fdp.combinePath(fdp.subPath);
+		fdp.combinePath();
 		
 		
 		
-		
+		System.out.println(fdp.formatString());
 		return fdp.formatString();
         
     }

@@ -22,11 +22,11 @@ public class Main
 //        }
 
         //String graphFilePath = args[0];
-        String graphFilePath = "F:\\contest\\huaweigraph\\test-case\\case0\\topo.csv";
+        String graphFilePath = "F:\\contest\\huaweigraph\\test-case\\case1\\topo.csv";
         //String conditionFilePath = args[1];
-        String conditionFilePath = "F:\\contest\\huaweigraph\\test-case\\case0\\demand.csv";
+        String conditionFilePath = "F:\\contest\\huaweigraph\\test-case\\case1\\demand.csv";
         //String resultFilePath = args[2];
-        String resultFilePath = "F:\\contest\\huaweigraph\\test-case\\case0\\result.csv";
+        String resultFilePath = "F:\\contest\\huaweigraph\\test-case\\case1\\result.csv";
 
         LogUtil.printLog("Begin");
 
