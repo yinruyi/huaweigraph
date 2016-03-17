@@ -31,31 +31,37 @@ public final class Route
         FindDemandPath fdp = new FindDemandPath();
 		
         fdp.graph = FileOperation.getGraph(graphContent);
-		System.out.println(fdp.graph.edgeSet().size());
-		fdp.demand = FileOperation.getCondition(condition);
 		
+		fdp.demand = FileOperation.getCondition(condition);
+		System.out.println(fdp.graph.edgeSet().size());
 
 //		System.out.println(fdp.demand);
 		
 		
-		LogUtil.printLog("\n\nStep1:Create virtual edge->");
+//		LogUtil.printLog("\n\nStep1:Create virtual edge->");
 		fdp.createVirtualEdge();
 		
 		
-		LogUtil.printLog("\n\nStep2:Find hamiltonian path in V'->");
+//		LogUtil.printLog("\n\nStep2:Find hamiltonian path in V'->");
 		fdp.findHamiltonianPath();
 		
-		
-		LogUtil.printLog("\n\nStep3:Replace virtual edge with relative path->");
 		fdp.replaceVirtualEdge();
+	
+		fdp.MinWeightPath();
+
 		
-		LogUtil.printLog("\n\nStep4:Get the source_from path and to_target path, and finally combine three path->");
-		fdp.combinePath();
+		
+//		fdp.combinePath();
+		
+		if(fdp.path.size() > 0){
+			String path = fdp.formatString();
+			System.out.println(path);
+			return path;
+		}else{
+			return "";
+		}
 		
 		
-		
-		System.out.println(fdp.formatString());
-		return fdp.formatString();
         
     }
 

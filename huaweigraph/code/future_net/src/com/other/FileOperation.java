@@ -148,11 +148,11 @@ public class FileOperation extends DefaultWeightedEdge{
 		input.add(vSet);
 		input.add(vD);
 		
-		System.out.println("The source and target vertex is:");
-		System.out.println("\t" + vSet);
-		
-		System.out.println("The subset v is:");
-		System.out.println("\t" + vD.toString());
+//		System.out.println("The source and target vertex is:");
+//		System.out.println("\t" + vSet);
+//		
+//		System.out.println("The subset v is:");
+//		System.out.println("\t" + vD.toString());
 		
 		return input;
 	}

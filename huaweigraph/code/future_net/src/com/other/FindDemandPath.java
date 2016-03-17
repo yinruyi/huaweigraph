@@ -2,12 +2,12 @@ package com.other;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.jgrapht.alg.DijkstraShortestPath;
@@ -18,6 +18,7 @@ import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 import org.jgrapht.traverse.TopologicalOrderIterator;
 
 import com.filetool.util.LogUtil;
+import com.other.hamiltonian_path.HamiltonPathFinder;
 
 
 
@@ -35,8 +36,9 @@ public class FindDemandPath {
 	//intermediate variable
 	public List<VirtualEdge> virSet = new ArrayList<VirtualEdge>();
 	public List<DefaultWeightedEdge> subPath = new ArrayList<DefaultWeightedEdge>();
-	
-	
+	public List<List<DefaultWeightedEdge>> subPathList = new ArrayList<List<DefaultWeightedEdge>>();
+	public List<List<DefaultWeightedEdge>> finalPathList = new ArrayList<List<DefaultWeightedEdge>>();
+	public List<Double> weightList = new ArrayList<Double>();
 	
 	
 	public void run(){
@@ -121,7 +123,9 @@ public class FindDemandPath {
 		
 		
 		SimpleDirectedWeightedGraph<Integer, DefaultWeightedEdge> graph = this.graph;
-		
+//		System.out.println(graph.edgeSet().size());
+		Set<Integer> vSet = graph.vertexSet();
+		Set<Integer> restSet = new HashSet(vSet);
 		//construct a subgraph of V' in graph
 		List<Integer> vertexs = this.demand.get(1);
 		Set<Integer> vertexSubset = new HashSet<Integer>();
@@ -129,19 +133,22 @@ public class FindDemandPath {
 		for(int i = 0; i < vertexs.size(); i++){
 			vertexSubset.add(vertexs.get(i));
 			
-			for(int j = 0; j < vertexs.size() && i != j; j++){
-				
-				if(graph.containsEdge(vertexs.get(i), vertexs.get(j))){
-					edgeSubset.add(graph.getEdge(vertexs.get(i), vertexs.get(j)));
-				}
-				if(graph.containsEdge(vertexs.get(j), vertexs.get(i))){
-					edgeSubset.add(graph.getEdge(vertexs.get(j), vertexs.get(i)));
-				}
-			}
+//			for(int j = 0; j < vertexs.size() && i != j; j++){
+//				
+//				if(graph.containsEdge(vertexs.get(i), vertexs.get(j))){
+//					edgeSubset.add(graph.getEdge(vertexs.get(i), vertexs.get(j)));
+//				}
+//				if(graph.containsEdge(vertexs.get(j), vertexs.get(i))){
+//					edgeSubset.add(graph.getEdge(vertexs.get(j), vertexs.get(i)));
+//				}
+//			}
 		}
+		
+		restSet.removeAll(vertexSubset);
+		DirectedWeightedSubgraph<Integer, DefaultWeightedEdge> subgraph = this.constructSubgraph(restSet);
 //		System.out.println(edgeSubset);
 		
-		DirectedWeightedSubgraph<Integer, DefaultWeightedEdge> subgraph = new DirectedWeightedSubgraph<Integer, DefaultWeightedEdge>(graph, vertexSubset, edgeSubset);
+//		DirectedWeightedSubgraph<Integer, DefaultWeightedEdge> subgraph = new DirectedWeightedSubgraph<Integer, DefaultWeightedEdge>(graph, vertexSubset, edgeSubset);
 		
 //		System.out.println("**test for subgraph**");
 //		System.out.println(subgraph.vertexSet().size());
@@ -149,35 +156,58 @@ public class FindDemandPath {
 //		System.out.println(subgraph.edgeSet());
 		
 		
-		/**
-		 * 首先要判断subgraph是否有环，
-		 * 如果有：TODO
-		 * 如果没有：进行下面的拓扑排序即可
-		 * 
-		 */
+		
+		HamiltonPathFinder finder = new HamiltonPathFinder(subgraph);
+		finder.Hami();
+		Set<List<Integer>> hpa = finder.paths;
+		System.out.println(hpa);
+		
+		if(hpa.size() > 0){
+			Iterator<List<Integer>> iter = hpa.iterator();
+			while(iter.hasNext()){
+				List<Integer> path = iter.next();
+				List<DefaultWeightedEdge> p = new ArrayList<DefaultWeightedEdge>();
+				for(int i = 0; i < path.size() - 1; i++){
+					DefaultWeightedEdge e = subgraph.getEdge(path.get(i), path.get(i+1));
+					
+					p.add(e);
+					
+				}
+				subPathList.add(p);
+			}
+			
+		}else{
+			System.out.println("Can't find the path.");
+		}
+		
+		
+		
+		/*
+		
+		
 		
 
+		
 		TarjanSimpleCycles finder = new TarjanSimpleCycles(subgraph);
-		if(finder.findSimpleCycles().size() > 0){
+		
+		if(finder.findSimpleCycles().size() > 0){//有环
 			
 			List<List<Integer>> cycles = finder.findSimpleCycles();
 			
 			//有环的时候怎么寻找hamilton path
+			
+			System.out.println(cycles.size());
+			
 			for(int i = 0; i < cycles.size(); i++){
-				List<Integer> cycle = cycles.get(i);
+		
 				
-				if(cycle.size() == subgraph.vertexSet().size()){
-					
-					//TODO 存在一个环包含了图的所有结点
-				}else{
-					//TODO 不存在一个环包含了图的所有结点，该怎么得到这个路径，
-				}
 			}
 			
-		}
-		
-		else{
 			
+		}else{
+		
+		//无环
+		
 			System.out.println("Use topological sort to find hamiltonian path in V'");
 			TopologicalOrderIterator<Integer, DefaultWeightedEdge> tpSortIter = new TopologicalOrderIterator<Integer, DefaultWeightedEdge>(subgraph);
 			List<Integer> sort = new ArrayList<Integer>();
@@ -207,7 +237,10 @@ public class FindDemandPath {
 				subPath = null;
 				pathLength = 0;
 			}
-		}
+			
+		}*/
+		
+		
 //		catch(NoSuchElementException e){
 //			System.out.println("There's a cycle in the directed weighted graph");
 //			e.printStackTrace();
@@ -221,67 +254,91 @@ public class FindDemandPath {
 	 */
 	public void replaceVirtualEdge(){
 		
-		if(this.subPath == null){
-			LogUtil.printLog("replaceVirtualEdge failed.\nThere's no subpath in V'.");
+		int num = subPathList.size();
+		if(!(num >0)){
+			System.out.println("repleaceVirtualEdge Failed.There's no subpath in V'.");
 			return;
 		}
 		
-		System.out.println("We need to return the virtual edge to the original one.");
-//		List<DefaultWeightedEdge> subPath = this.subPath;
-		
-		
-//		System.out.println(subPath.size());
-		Set<DefaultWeightedEdge> virEdge = new HashSet<DefaultWeightedEdge>();
-		
-		
-		
-		for(int i = 0; i < this.virSet.size(); i++){
-			VirtualEdge tempVE = this.virSet.get(i);
+		for(int j = 0; j < this.virSet.size(); j++){
+			VirtualEdge tempVE = this.virSet.get(j);
 			this.graph.removeEdge((Integer)tempVE.getSource(), (Integer)tempVE.getTarget());
 			
 		}
 		
+		System.out.println(graph.edgeSet().size());
 		
-		
-		
-		Map<Integer, List<DefaultWeightedEdge>> vToR = new HashMap<Integer, List<DefaultWeightedEdge>>();
-		for(int i = 0; i < subPath.size(); i++){
-			if(subPath.get(i).getId() == -1){				
-				DefaultWeightedEdge tempDE = subPath.get(i);
-				
-				for(int j = 0; j < this.virSet.size(); j++){
-					VirtualEdge tempVE = this.virSet.get(j);
-					if(tempDE.getSource() == tempVE.getSource() && tempDE.getTarget() == tempVE.getTarget()){
-//						virEdge.add(tempDE);
-						List<DefaultWeightedEdge> rPath = tempVE.getrPath().get(0);
-						vToR.put(i, rPath);
-//						int index = 
-//						subPath.set(index, rPath.get(0));//首先将原来那条虚拟边去掉，并替换成新的
-//						for(int j = 1; j < rPath.size(); j++){
-//							index = index + 1;
-//							subPath.add(index, rPath.get(j));
-//						}
-						
+		for(int i = 0; i < num; i++){
+			List<DefaultWeightedEdge> subPath = new ArrayList<DefaultWeightedEdge>(subPathList.get(i));
+			Set<DefaultWeightedEdge> virEdge = new HashSet<DefaultWeightedEdge>();
+			
+
+			
+			Map<Integer, List<DefaultWeightedEdge>> vToR = new HashMap<Integer, List<DefaultWeightedEdge>>();
+			List<Integer> veNum = new ArrayList<Integer>();
+			for(int j = 0; j < subPath.size(); j++){
+				if(subPath.get(j).getId() == -1){				
+					DefaultWeightedEdge tempDE = subPath.get(j);
+					veNum.add(j);
+					boolean flag = true;
+					for(int k = 0; k < this.virSet.size(); k++){
+						VirtualEdge tempVE = this.virSet.get(k);
+						if(tempDE.getSource() == tempVE.getSource() && tempDE.getTarget() == tempVE.getTarget()){
+//							virEdge.add(tempDE);
+							List<DefaultWeightedEdge> rPath = new ArrayList<DefaultWeightedEdge>(tempVE.getrPath().get(0));
+							vToR.put(j, rPath);
+							flag = false;
+							break;
+							
+//							int index = 
+//							subPath.set(index, rPath.get(0));//首先将原来那条虚拟边去掉，并替换成新的
+//							for(int j = 1; j < rPath.size(); j++){
+//								index = index + 1;
+//								subPath.add(index, rPath.get(j));
+//							}
+							
+						}
 					}
+					
+					if(flag){
+						System.out.println("存在结点 的ID为-1，但不在虚拟边集合里" + subPath.get(j).getSource() + "->" + subPath.get(j).getTarget());
+					}
+					
 				}
+			}
+//			this.graph.removeAllEdges(virEdge);
+//			System.out.println(this.graph.vertexSet().size());
+//			System.out.println(this.graph.edgeSet().size());//检查图的边有没有缺失
+			int increment = 0;
+//			System.out.println(subPath);
+			for(int j = 0; j < veNum.size(); j++){
+				
+				int index = veNum.get(j);
+//				System.out.println(index);
+				subPath.remove(increment + index);
+				
+				subPath.addAll(increment + index, vToR.get(index));
+				increment += vToR.get(index).size() - 1;
 				
 			}
-		}
-//		this.graph.removeAllEdges(virEdge);
-		System.out.println(this.graph.vertexSet().size());
-		System.out.println(this.graph.edgeSet().size());//检查图的边有没有缺失
-		
-		Iterator<Map.Entry<Integer, List<DefaultWeightedEdge>>> iter = vToR.entrySet().iterator();
-		int increment = 0;
-		while(iter.hasNext()){
-			Map.Entry<Integer, List<DefaultWeightedEdge>> ele = iter.next();
-			int index = ele.getKey();
-			subPath.remove(increment + index);
-			subPath.addAll(increment + index, ele.getValue());
-			increment += ele.getValue().size() - 1;
-		}
-		
-//		this.subPath = subPath;
+//			Iterator<Map.Entry<Integer, List<DefaultWeightedEdge>>> iter = vToR.entrySet().iterator();
+//			
+//			while(iter.hasNext()){
+//				Map.Entry<Integer, List<DefaultWeightedEdge>> ele = iter.next();
+//				int index = ele.getKey();
+//				subPath.remove(increment + index);
+//				
+//				subPath.addAll(increment + index, ele.getValue());
+//				increment += ele.getValue().size() - 1;
+//			}
+			
+//			for(DefaultWeightedEdge e: subPath){
+//				if(e.getId() == -1){
+//					System.out.println(e.getSource() + "->" + e.getTarget());
+//				}
+//			}
+			subPathList.set(i, subPath);
+		}	
 	}
 	
 	public Set<Integer> getAllVertexs(List<DefaultWeightedEdge> list){
@@ -297,13 +354,14 @@ public class FindDemandPath {
 	/**
 	 * get the final path
 	 */
-	public void combinePath(){
+	public double combinePath(){
+		
 		if(this.subPath == null){
-			LogUtil.printLog("combinePath failed.\nThere's no subpath in V'.");
-			return;
+//			System.out.println("combinePath failed.There's no subpath in V'.");
+			return -1.0;
 		}
 		
-		System.out.println("First, we need to find the best source_from path and to_target path.");
+//		System.out.println("First, we need to find the best source_from path and to_target path.");
 		List<List<DefaultWeightedEdge>> result = new ArrayList<List<DefaultWeightedEdge>>();
 		
 //		System.out.println(this.subPath);
@@ -316,6 +374,7 @@ public class FindDemandPath {
 		vOfSubpath.remove(midS);
 		vOfSubpath.remove(midT);
 		
+		
 		double weight13 = 0;
 		double weight31 = 0;
 		boolean flag1 = true;
@@ -324,11 +383,11 @@ public class FindDemandPath {
 		
 		
 		/*先1后3*/
-		SimpleDirectedWeightedGraph<Integer, DefaultWeightedEdge> tempGraph1 = new SimpleDirectedWeightedGraph<Integer, DefaultWeightedEdge>(DefaultWeightedEdge.class);
-		tempGraph1 = (SimpleDirectedWeightedGraph<Integer, DefaultWeightedEdge>) graph.clone();
-		tempGraph1.removeAllVertices(vOfSubpath);
-		tempGraph1.removeVertex(midT);
-		tempGraph1.removeVertex(target);
+		Set<Integer> remove1 = new HashSet<Integer>(vOfSubpath);
+		remove1.add(midT);
+		remove1.add(target);
+		remove1.remove(source);
+		DirectedWeightedSubgraph<Integer, DefaultWeightedEdge> tempGraph1 = this.constructSubgraph(remove1);
 		
 		
 		DijkstraShortestPath<Integer, DefaultWeightedEdge> dj1 = new DijkstraShortestPath<Integer, DefaultWeightedEdge>(tempGraph1, source, midS);
@@ -337,11 +396,10 @@ public class FindDemandPath {
 			List<DefaultWeightedEdge> prior = dj1.getPathEdgeList();
 			
 			Set<Integer> vOfPrior = this.getAllVertexs(prior);
-			
-			SimpleDirectedWeightedGraph<Integer, DefaultWeightedEdge> tempGraph2 = new SimpleDirectedWeightedGraph<Integer, DefaultWeightedEdge>(DefaultWeightedEdge.class);
-			tempGraph2 = (SimpleDirectedWeightedGraph<Integer, DefaultWeightedEdge>) graph.clone();
-			tempGraph2.removeAllVertices(vOfSubpath);
-			tempGraph2.removeAllVertices(vOfPrior);
+			Set<Integer> remove2 = new HashSet<Integer>(vOfPrior);
+			remove2.addAll(vOfSubpath);
+			DirectedWeightedSubgraph<Integer, DefaultWeightedEdge> tempGraph2 = this.constructSubgraph(remove2);
+
 			
 			
 			DijkstraShortestPath<Integer, DefaultWeightedEdge> dj2 = new DijkstraShortestPath<Integer, DefaultWeightedEdge>(tempGraph2, midT, target);
@@ -361,13 +419,15 @@ public class FindDemandPath {
 		
 		
 		/*先3后1*/
-		SimpleDirectedWeightedGraph<Integer, DefaultWeightedEdge> tempGraph3 = new SimpleDirectedWeightedGraph<Integer, DefaultWeightedEdge>(DefaultWeightedEdge.class);
-		tempGraph3 = (SimpleDirectedWeightedGraph<Integer, DefaultWeightedEdge>) graph.clone();
-		tempGraph3.removeAllVertices(vOfSubpath);
-		tempGraph3.removeVertex(midS);
-		tempGraph3.removeVertex(source);
+		Set<Integer> remove3 = new HashSet<Integer>(vOfSubpath);
+		remove3.add(midS);
+		remove3.add(source);
+		remove3.remove(target);
+		DirectedWeightedSubgraph<Integer, DefaultWeightedEdge> tempGraph3 = this.constructSubgraph(remove3);
 		
-		
+//		if(!tempGraph3.containsVertex(target)){
+//			System.out.println("原图没有终点");
+//		}
 		DijkstraShortestPath<Integer, DefaultWeightedEdge> dj3 = new DijkstraShortestPath<Integer, DefaultWeightedEdge>(tempGraph3, midT, target);
 		
 		if(dj3.getPath() != null){
@@ -375,10 +435,11 @@ public class FindDemandPath {
 			
 			Set<Integer> vOfNext = this.getAllVertexs(next);
 			
-			SimpleDirectedWeightedGraph<Integer, DefaultWeightedEdge> tempGraph4 = new SimpleDirectedWeightedGraph<Integer, DefaultWeightedEdge>(DefaultWeightedEdge.class);
-			tempGraph4 = (SimpleDirectedWeightedGraph<Integer, DefaultWeightedEdge>) graph.clone();
-			tempGraph4.removeAllVertices(vOfSubpath);
-			tempGraph4.removeAllVertices(vOfNext);
+			
+			Set<Integer> remove4 = new HashSet<Integer>(vOfSubpath);
+			remove4.addAll(vOfNext);
+			remove4.remove(source);
+			DirectedWeightedSubgraph<Integer, DefaultWeightedEdge> tempGraph4 = this.constructSubgraph(remove4);
 			
 			
 			DijkstraShortestPath<Integer, DefaultWeightedEdge> dj4 = new DijkstraShortestPath<Integer, DefaultWeightedEdge>(tempGraph4, source, midS);
@@ -402,33 +463,96 @@ public class FindDemandPath {
 		
 		
 		if(flag1 == false && flag2 == false){
-			
-			LogUtil.printLog("CombinePath failed.\nThere's no suitable path.");
-			return ;
+//			System.out.println("CombinePath failed.\nThere's no suitable path.");
+			return -1.0;
 		}else{
-			System.out.println("Then, we need to combine the three paths into one.");
+//			System.out.println("Then, we need to combine the three paths into one.");
 			for(int j = 0; j < result.size(); j++){
 				this.path.addAll(result.get(j));
 				
 			}
-			System.out.println(path);
-			this.pathLength = weight13;
-			System.out.println("Get the path successfully. And the weight of path:");
-			System.out.println(weight13);
+//			System.out.println(path);
+			finalPathList.add(new ArrayList<DefaultWeightedEdge>(path));
+			weightList.add(weight13);
+//			System.out.println("Get the path successfully. And the weight of path:");
+//			System.out.println(path);
+//			System.out.println(weight13);
+			return weight13;
 		}
 	}
 	
+	public DirectedWeightedSubgraph<Integer, DefaultWeightedEdge> constructSubgraph(Set<Integer> remove){
+		Set<Integer> vSet = new HashSet<Integer>(graph.vertexSet());
+		Set<DefaultWeightedEdge> eSet = new HashSet<DefaultWeightedEdge>(graph.edgeSet());
+		
+		vSet.removeAll(remove);
+		Iterator<Integer> iter = remove.iterator();
+		while(iter.hasNext()){
+			int v = iter.next();
+			eSet.removeAll(graph.incomingEdgesOf(v));
+			eSet.removeAll(graph.outgoingEdgesOf(v));
+		}
+		DirectedWeightedSubgraph<Integer, DefaultWeightedEdge> subgraph = new DirectedWeightedSubgraph<Integer, DefaultWeightedEdge>(graph, vSet, eSet);
+		return subgraph;
+	}
+	public int MinWeightPath(){
+		
+		int num = subPathList.size();
+		if(!(num >0)){
+			System.out.println(this.getClass().getName() + "Failed.There's no subpath in V'.");
+			return 0;
+		}
+		
+		
+		
+		
+		
+		for(int i = 0; i < num; i++){
+			this.path.clear();
+			this.subPath = subPathList.get(i);
+			this.combinePath();			
+		}
+		
+		if(!(finalPathList.size()> 0)){
+			System.out.println("Can't find the path.");
+			this.path = null;
+			return -1;
+		}
+		double minWeight = Double.MAX_VALUE;
+		int idx = -1;
+		for(int i = 0; i < weightList.size(); i++){
+			if(minWeight > weightList.get(i)){
+				minWeight = weightList.get(i);
+				idx = i;
+			}
+		}
+		if(minWeight > 0){
+			path = finalPathList.get(idx);
+			pathLength = minWeight;
+			System.out.println("*******************************");
+			System.out.println("Successfully get the min weighted path.");
+			System.out.println("The path is:" + path);
+			System.out.println("The weight is :" + minWeight);
+			return 1;
+		}
+
+		return -1;
+	}
 	public String formatString() {
 		List<DefaultWeightedEdge> vSeq = this.path;
+		System.out.println(vSeq);
 		String result = "";
 		result += ((Integer)(vSeq.get(0).getId())).toString();
 		for(int i=1;i< vSeq.size();i++){  
+//			if(vSeq.get(i).getId() == -1){
+//				System.out.println(vSeq.get(i).getSource() + "->" + vSeq.get(i).getTarget());
+//			}
 			result += ("|" + ((Integer)(vSeq.get(i).getId())).toString());  
 		} 
 		return result;
 	}
 	
-	public static void main(String[] arg) throws IOException{
+	public static void Main(String[] arg) throws IOException{
 		String fileG = "F:\\contest\\huaweigraph\\test-case\\case0/topo.csv";
 		String fileD = "F:\\contest\\huaweigraph\\test-case\\case0/demand.csv";
 		String output = "F:\\contest\\huaweigraph\\test-case\\case0/result.csv";
@@ -470,4 +594,40 @@ public class FindDemandPath {
 			System.out.println(weight);
 		}
 	}
+	
+//	public static void main(String[] arg){
+//		ArrayList<Integer> l = new ArrayList<Integer>();
+//		for(int i = 0; i < 10; i++){
+//			l.add(i);
+//		}
+//		l.set(2, -1);
+//		l.set(5, -1);
+//		l.set(8, -1);
+//		System.out.println(l);
+//		ArrayList<Integer> in1 = new ArrayList<Integer>();
+//		in1.add(100);
+//		ArrayList<Integer> in2 = new ArrayList<Integer>();
+//		in2.add(101);in2.add(101);
+//		ArrayList<Integer> in3 = new ArrayList<Integer>();
+//		in3.add(102);in3.add(102);in3.add(102);
+//		ArrayList<ArrayList<Integer>> t = new ArrayList<ArrayList<Integer>>();
+//		t.add(in1);
+//		t.add(in2);
+//		t.add(in3);
+//		int[] ids = {2,5,8};
+//		int increment = 0;
+//		for(int j = 0; j < ids.length; j++){
+//			
+//			int index = ids[j];
+////			System.out.println(index);
+//			l.remove(increment + index);
+//			
+//			l.addAll(increment + index, t.get(j));
+//			System.out.println(l);
+//			increment += (t.get(j)).size() - 1;
+//			
+//		}
+//		
+////		System.out.println(l);
+//	}
 }
