@@ -247,13 +247,7 @@ public class FindDemandPath {
 //		}
 		
 	}
-	
-	/**
-	 * Inverse the virtual process, that is replacing virtual edge using the real path.
-	 * when replacing the virtual edge, remove the virtual edge from the original graph.
-	 */
-	public void replaceVirtualEdge(){
-		
+	public void replaceVirtualEdges(){
 		int num = subPathList.size();
 		if(!(num >0)){
 			System.out.println("repleaceVirtualEdge Failed.There's no subpath in V'.");
@@ -269,76 +263,82 @@ public class FindDemandPath {
 		System.out.println(graph.edgeSet().size());
 		
 		for(int i = 0; i < num; i++){
-			List<DefaultWeightedEdge> subPath = new ArrayList<DefaultWeightedEdge>(subPathList.get(i));
-			Set<DefaultWeightedEdge> virEdge = new HashSet<DefaultWeightedEdge>();
-			
-
-			
-			Map<Integer, List<DefaultWeightedEdge>> vToR = new HashMap<Integer, List<DefaultWeightedEdge>>();
-			List<Integer> veNum = new ArrayList<Integer>();
-			for(int j = 0; j < subPath.size(); j++){
-				if(subPath.get(j).getId() == -1){				
-					DefaultWeightedEdge tempDE = subPath.get(j);
-					veNum.add(j);
-					boolean flag = true;
-					for(int k = 0; k < this.virSet.size(); k++){
-						VirtualEdge tempVE = this.virSet.get(k);
-						if(tempDE.getSource() == tempVE.getSource() && tempDE.getTarget() == tempVE.getTarget()){
-//							virEdge.add(tempDE);
-							List<DefaultWeightedEdge> rPath = new ArrayList<DefaultWeightedEdge>(tempVE.getrPath().get(0));
-							vToR.put(j, rPath);
-							flag = false;
-							break;
-							
-//							int index = 
-//							subPath.set(index, rPath.get(0));//首先将原来那条虚拟边去掉，并替换成新的
-//							for(int j = 1; j < rPath.size(); j++){
-//								index = index + 1;
-//								subPath.add(index, rPath.get(j));
-//							}
-							
-						}
-					}
-					
-					if(flag){
-						System.out.println("存在结点 的ID为-1，但不在虚拟边集合里" + subPath.get(j).getSource() + "->" + subPath.get(j).getTarget());
-					}
-					
-				}
-			}
-//			this.graph.removeAllEdges(virEdge);
-//			System.out.println(this.graph.vertexSet().size());
-//			System.out.println(this.graph.edgeSet().size());//检查图的边有没有缺失
-			int increment = 0;
-//			System.out.println(subPath);
-			for(int j = 0; j < veNum.size(); j++){
-				
-				int index = veNum.get(j);
-//				System.out.println(index);
-				subPath.remove(increment + index);
-				
-				subPath.addAll(increment + index, vToR.get(index));
-				increment += vToR.get(index).size() - 1;
-				
-			}
-//			Iterator<Map.Entry<Integer, List<DefaultWeightedEdge>>> iter = vToR.entrySet().iterator();
-//			
-//			while(iter.hasNext()){
-//				Map.Entry<Integer, List<DefaultWeightedEdge>> ele = iter.next();
-//				int index = ele.getKey();
-//				subPath.remove(increment + index);
-//				
-//				subPath.addAll(increment + index, ele.getValue());
-//				increment += ele.getValue().size() - 1;
-//			}
-			
-//			for(DefaultWeightedEdge e: subPath){
-//				if(e.getId() == -1){
-//					System.out.println(e.getSource() + "->" + e.getTarget());
-//				}
-//			}
-			subPathList.set(i, subPath);
+			List<DefaultWeightedEdge> hPath = replaceVirtualEdge(subPathList.get(i));
+			subPathList.set(i, hPath);
 		}	
+	}
+	/**
+	 * Inverse the virtual process, that is replacing virtual edge using the real path.
+	 * when replacing the virtual edge, remove the virtual edge from the original graph.
+	 */
+	public List<DefaultWeightedEdge> replaceVirtualEdge(List<DefaultWeightedEdge> hPath){
+		
+
+		List<DefaultWeightedEdge> newPath = new ArrayList<DefaultWeightedEdge>();
+		Set<DefaultWeightedEdge> virEdge = new HashSet<DefaultWeightedEdge>();
+		
+
+		
+		Map<Integer, List<DefaultWeightedEdge>> vToR = new HashMap<Integer, List<DefaultWeightedEdge>>();
+		List<Integer> veNum = new ArrayList<Integer>();
+		for(int j = 0; j < hPath.size(); j++){
+			if(!(hPath.get(j).getId() == -1)){
+				newPath.add(hPath.get(j));
+			}else{				
+				DefaultWeightedEdge tempDE = hPath.get(j);
+				veNum.add(j);
+				boolean flag = true;
+				for(int k = 0; k < this.virSet.size(); k++){
+					VirtualEdge tempVE = this.virSet.get(k);
+					if(tempDE.getSource() == tempVE.getSource() && tempDE.getTarget() == tempVE.getTarget()){
+//						virEdge.add(tempDE);
+						List<DefaultWeightedEdge> rPath = new ArrayList<DefaultWeightedEdge>(tempVE.getrPath().get(0));
+						for(int r = 0; r < rPath.size(); r++){
+							newPath.add(rPath.get(r));
+						}
+//						vToR.put(j, rPath);
+						flag = false;
+//						break;
+						
+//						int index = 
+//						subPath.set(index, rPath.get(0));//首先将原来那条虚拟边去掉，并替换成新的
+//						for(int j = 1; j < rPath.size(); j++){
+//							index = index + 1;
+//							subPath.add(index, rPath.get(j));
+//						}
+						
+					}
+				}
+				
+				if(flag){
+					System.out.println("存在结点 的ID为-1，但不在虚拟边集合里" + hPath.get(j).getSource() + "->" + hPath.get(j).getTarget());
+				}
+				
+			}
+		}
+//		this.graph.removeAllEdges(virEdge);
+//		System.out.println(this.graph.vertexSet().size());
+//		System.out.println(this.graph.edgeSet().size());//检查图的边有没有缺失
+//		int increment = 0;
+//		System.out.println(subPath);
+//		for(int j = 0; j < veNum.size(); j++){
+//			
+//			int index = veNum.get(j);
+//			System.out.println(index);
+//			hPath.remove(increment + index);
+//			
+//			hPath.addAll(increment + index, vToR.get(index));
+//			increment += vToR.get(index).size() - 1;
+//			
+//		}
+//		
+//		for(DefaultWeightedEdge e: hPath){
+//			if(e.getId() == -1){
+//				System.out.println(e.getSource() + "->" + e.getTarget());
+//			}
+//		}
+		
+		return newPath;
 	}
 	
 	public Set<Integer> getAllVertexs(List<DefaultWeightedEdge> list){
@@ -371,8 +371,6 @@ public class FindDemandPath {
 		int target = this.demand.get(0).get(1);
 		
 		Set<Integer> vOfSubpath = this.getAllVertexs(subPath);
-		vOfSubpath.remove(midS);
-		vOfSubpath.remove(midT);
 		
 		
 		double weight13 = 0;
@@ -383,9 +381,12 @@ public class FindDemandPath {
 		
 		
 		/*先1后3*/
+//		if(graph.containsVertex(source)){
+//			System.out.println("原图里有啊！");
+//		}
 		Set<Integer> remove1 = new HashSet<Integer>(vOfSubpath);
-		remove1.add(midT);
 		remove1.add(target);
+		remove1.remove(midS);
 		remove1.remove(source);
 		DirectedWeightedSubgraph<Integer, DefaultWeightedEdge> tempGraph1 = this.constructSubgraph(remove1);
 		
@@ -398,6 +399,8 @@ public class FindDemandPath {
 			Set<Integer> vOfPrior = this.getAllVertexs(prior);
 			Set<Integer> remove2 = new HashSet<Integer>(vOfPrior);
 			remove2.addAll(vOfSubpath);
+			remove2.remove(midT);
+			remove2.remove(target);
 			DirectedWeightedSubgraph<Integer, DefaultWeightedEdge> tempGraph2 = this.constructSubgraph(remove2);
 
 			
@@ -422,6 +425,7 @@ public class FindDemandPath {
 		Set<Integer> remove3 = new HashSet<Integer>(vOfSubpath);
 		remove3.add(midS);
 		remove3.add(source);
+		remove3.remove(midT);
 		remove3.remove(target);
 		DirectedWeightedSubgraph<Integer, DefaultWeightedEdge> tempGraph3 = this.constructSubgraph(remove3);
 		
@@ -438,6 +442,7 @@ public class FindDemandPath {
 			
 			Set<Integer> remove4 = new HashSet<Integer>(vOfSubpath);
 			remove4.addAll(vOfNext);
+			remove4.remove(midS);
 			remove4.remove(source);
 			DirectedWeightedSubgraph<Integer, DefaultWeightedEdge> tempGraph4 = this.constructSubgraph(remove4);
 			
@@ -595,39 +600,40 @@ public class FindDemandPath {
 		}
 	}
 	
-//	public static void main(String[] arg){
-//		ArrayList<Integer> l = new ArrayList<Integer>();
-//		for(int i = 0; i < 10; i++){
-//			l.add(i);
-//		}
-//		l.set(2, -1);
-//		l.set(5, -1);
-//		l.set(8, -1);
-//		System.out.println(l);
-//		ArrayList<Integer> in1 = new ArrayList<Integer>();
-//		in1.add(100);
-//		ArrayList<Integer> in2 = new ArrayList<Integer>();
-//		in2.add(101);in2.add(101);
-//		ArrayList<Integer> in3 = new ArrayList<Integer>();
-//		in3.add(102);in3.add(102);in3.add(102);
-//		ArrayList<ArrayList<Integer>> t = new ArrayList<ArrayList<Integer>>();
-//		t.add(in1);
-//		t.add(in2);
-//		t.add(in3);
-//		int[] ids = {2,5,8};
-//		int increment = 0;
-//		for(int j = 0; j < ids.length; j++){
-//			
-//			int index = ids[j];
-////			System.out.println(index);
-//			l.remove(increment + index);
-//			
-//			l.addAll(increment + index, t.get(j));
-//			System.out.println(l);
-//			increment += (t.get(j)).size() - 1;
-//			
-//		}
-//		
-////		System.out.println(l);
-//	}
+	public static void mai(String[] arg){
+		ArrayList<Integer> l = new ArrayList<Integer>();
+		for(int i = 0; i < 10; i++){
+			l.add(i);
+		}
+		l.set(2, -1);
+		l.set(5, -1);
+		l.set(8, -1);
+		System.out.println(l);
+		ArrayList<Integer> in1 = new ArrayList<Integer>();
+		in1.add(100);
+		ArrayList<Integer> in2 = new ArrayList<Integer>();
+		in2.add(101);in2.add(101);
+		ArrayList<Integer> in3 = new ArrayList<Integer>();
+		in3.add(102);in3.add(102);in3.add(102);
+		ArrayList<ArrayList<Integer>> t = new ArrayList<ArrayList<Integer>>();
+		t.add(in1);
+		t.add(in2);
+		t.add(in3);
+		int[] ids = {2,5,8};
+		int increment = 0;
+		for(int j = 0; j < ids.length; j++){
+			
+			int index = ids[j];
+//			System.out.println(index);
+			l.remove(increment + index);
+			
+			l.addAll(increment + index, t.get(j));
+			System.out.println(l);
+			increment += (t.get(j)).size() - 1;
+			
+		}
+		
+		in3.add(200);
+		System.out.println(l);
+	}
 }

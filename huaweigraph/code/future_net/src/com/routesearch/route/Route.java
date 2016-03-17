@@ -45,7 +45,7 @@ public final class Route
 //		LogUtil.printLog("\n\nStep2:Find hamiltonian path in V'->");
 		fdp.findHamiltonianPath();
 		
-		fdp.replaceVirtualEdge();
+		fdp.replaceVirtualEdges();
 	
 		fdp.MinWeightPath();
 
